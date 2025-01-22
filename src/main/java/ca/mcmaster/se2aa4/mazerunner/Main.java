@@ -20,24 +20,27 @@ public class Main {
         try {
             CommandLine cmd = parser.parse(options, args);
 
-            // check if the input file flag is provided
+            // Check if the input file flag is provided
             if (cmd.hasOption("i")) {
                 String inputFile = cmd.getOptionValue("i");
                 logger.info("Reading the maze from file: " + inputFile);
 
-                // read and process the maze file
                 try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        for (int idx = 0; idx < line.length(); idx++) {
-                            if (line.charAt(idx) == '#') {
-                                logger.debug("WALL ");
-                            } else if (line.charAt(idx) == ' ') {
-                                logger.debug("PASS ");
-                            }
-                        }
-                        logger.debug(System.lineSeparator());
+                    // Initialize the Maze
+                    Maze maze = new Maze();
+                    int[] entry = maze.getEntryPoint();
+                    int[] exit = maze.getExitPoint();
+
+                    // Initialize the Explorer
+                    Explorer explorer = new Explorer(entry[0], entry[1]);
+
+                    // Traverse the maze
+                    while (explorer.getY() < exit[1]) {
+                        explorer.moveForward();
                     }
+
+                    // Log the factorized path
+                    logger.info("Factorized Path: " + explorer.getCanonicalPath());
                 } catch (Exception e) {
                     logger.error("An error occurred while reading the maze file", e);
                 }
@@ -48,8 +51,6 @@ public class Main {
             logger.error("Error parsing command-line arguments", e);
         }
 
-        logger.info("**** Computing path");
-        logger.warn("PATH NOT COMPUTED");
         logger.info("** End of Maze Runner");
     }
 }
