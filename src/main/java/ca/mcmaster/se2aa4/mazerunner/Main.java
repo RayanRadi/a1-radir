@@ -20,26 +20,21 @@ public class Main {
         try {
             CommandLine cmd = parser.parse(options, args);
 
-            // Check if the input file flag is provided
             if (cmd.hasOption("i")) {
                 String inputFile = cmd.getOptionValue("i");
                 logger.info("Reading the maze from file: " + inputFile);
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-                    // Initialize the Maze
-                    Maze maze = new Maze();
+                    Maze maze = new Maze(reader);
                     int[] entry = maze.getEntryPoint();
                     int[] exit = maze.getExitPoint();
 
-                    // Initialize the Explorer
-                    Explorer explorer = new Explorer(entry[0], entry[1]);
+                    Explorer explorer = new Explorer(entry[0], entry[1], maze.getGrid());
 
-                    // Traverse the maze
                     while (explorer.getY() < exit[1]) {
                         explorer.moveForward();
                     }
 
-                    // Log the factorized path
                     logger.info("Factorized Path: " + explorer.getCanonicalPath());
                 } catch (Exception e) {
                     logger.error("An error occurred while reading the maze file", e);
@@ -48,7 +43,7 @@ public class Main {
                 logger.error("Input file not specified. Use -i <file>");
             }
         } catch (ParseException e) {
-            logger.error("Error parsing command-line arguments", e);
+            logger.error("Error parsing command-line arguments.", e);
         }
 
         logger.info("** End of Maze Runner");
