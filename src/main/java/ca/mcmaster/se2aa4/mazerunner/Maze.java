@@ -15,4 +15,12 @@ public class Maze {
     public char[][] getGrid() {
         return grid;
     }
+
+    public int[] getEntryPoint() {
+        return new int[] {1, 0}; // Entry point (row 1, column 0)
+    }
+
+    public int[] getExitPoint() {
+        return new int[] {1, grid[1].length - 1}; // Exit point (row 1, last column)
+    }
 }
