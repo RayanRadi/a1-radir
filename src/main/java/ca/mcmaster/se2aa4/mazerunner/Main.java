@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.commons.cli.*;
 
 public class Main {
-
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) {
@@ -29,10 +28,10 @@ public class Main {
                     int[] entry = maze.getEntryPoint();
                     int[] exit = maze.getExitPoint();
 
-                    Explorer explorer = new Explorer(entry[0], entry[1], maze.getGrid());
+                    Explorer explorer = new Explorer(entry[0], entry[1], maze.getGrid()); // ✅ FIXED
 
-                    while (explorer.getY() < exit[1]) {
-                        explorer.moveForward();
+                    while (!explorer.hasReachedExit()) { // ✅ FIXED
+                        explorer.moveRightHandRule();
                     }
 
                     logger.info("Factorized Path: " + explorer.getCanonicalPath());
