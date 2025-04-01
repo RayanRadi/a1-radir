@@ -5,7 +5,9 @@
  * Rayan Radi - 400503807
  */
 
+
  package ca.mcmaster.se2aa4.mazerunner;
+
 
  import java.io.BufferedReader;
  import java.io.FileReader;
@@ -29,8 +31,10 @@
              String inputFile = cmd.getOptionValue("i");
              try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
                  Maze maze = new Maze(reader);
-                 int[] entry = maze.getEntryPoint();
-                 Explorer explorer = new Explorer(entry[0], entry[1], maze.getGrid());
+ 
+                 // FACTORY METHOD USED HERE
+                 Explorer explorer = ExplorerFactory.createRightHandRuleExplorer(maze);
+ 
                  String computedPath = explorer.computePath();
                  if (cmd.hasOption("p")) {
                      String userPath = cmd.getOptionValue("p");

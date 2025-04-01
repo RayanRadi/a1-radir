@@ -40,7 +40,7 @@ public class Explorer {
     }
 
     public String computePath() {
-        int maxSteps = 5000; // Cap to prevent infinite wandering
+        int maxSteps = 50000; // Cap to prevent infinite wandering   CAN BE CHANGED AT WILL BTW
         while (!hasReachedExit() && maxSteps-- > 0) {
             moveRightHandRule();
         }
