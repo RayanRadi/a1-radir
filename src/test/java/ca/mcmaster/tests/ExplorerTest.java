@@ -2,6 +2,7 @@ package ca.mcmaster.tests;
 
 import ca.mcmaster.se2aa4.mazerunner.Explorer;
 import ca.mcmaster.se2aa4.mazerunner.Maze;
+import ca.mcmaster.se2aa4.mazerunner.commands.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
@@ -22,13 +23,13 @@ public class ExplorerTest {
             {' ', ' ', ' '},
             {' ', ' ', ' '}
         };
-        explorer = new Explorer(1, 0, grid); // Starts at (1,0) facing RIGHT
+        explorer = new Explorer(1, 0, grid);
     }
 
     // 1. Test moving forward one tile
     @Test
     public void testMoveForward() {
-        explorer.moveForward();
+        new MoveForwardCommand(explorer).execute();
         assertEquals(1, explorer.getX());
         assertEquals(1, explorer.getY());
     }
@@ -46,9 +47,9 @@ public class ExplorerTest {
     // 3. Test path compression for 3 forward moves
     @Test
     public void testGetCanonicalPath() {
-        explorer.moveForward();
-        explorer.moveForward();
-        explorer.moveForward();
+        new MoveForwardCommand(explorer).execute();
+        new MoveForwardCommand(explorer).execute();
+        new MoveForwardCommand(explorer).execute();
         assertEquals("3F", explorer.getCanonicalPath());
     }
 
@@ -57,7 +58,7 @@ public class ExplorerTest {
     public void testHasReachedExitTrue() {
         Explorer temp = new Explorer(0, 0, new char[][]{{' ', ' ', ' '}});
         while (!temp.hasReachedExit()) {
-            temp.moveForward();
+            temp.moveRightHandRule();
         }
         assertTrue(temp.hasReachedExit());
     }
@@ -150,8 +151,7 @@ public class ExplorerTest {
         assertEquals("FR2FL4F", path);
     }
 
-    // 12. check if it reaches a dead end half way that it returns safely and notifies
-
+    // 12. Dead-end triggers infinite loop prevention
     @Test
     public void testMazeWithBlockedExit() {
         char[][] maze = {
@@ -163,8 +163,6 @@ public class ExplorerTest {
         Exception exception = assertThrows(IllegalStateException.class, e::computePath);
         assertEquals("Maze runner returned to starting position — possible infinite loop.", exception.getMessage());
     }
-
-    
 
     // 13. Maze with only one path but a hard turn
     @Test

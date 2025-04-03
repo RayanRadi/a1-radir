@@ -1,5 +1,6 @@
 package ca.mcmaster.se2aa4.mazerunner;
 
+import ca.mcmaster.se2aa4.mazerunner.commands.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class Explorer {
 
         this.x = startX;
         this.y = startY;
-        this.startX = startX; // Store original starting position
+        this.startX = startX;
         this.startY = startY;
         this.grid = maze;
         this.path = new ArrayList<>();
@@ -40,7 +41,7 @@ public class Explorer {
     }
 
     public String computePath() {
-        int maxSteps = 50000; // Cap to prevent infinite wandering   CAN BE CHANGED AT WILL BTW
+        int maxSteps = 5000;
         while (!hasReachedExit() && maxSteps-- > 0) {
             moveRightHandRule();
         }
@@ -51,23 +52,23 @@ public class Explorer {
     }
 
     public void moveRightHandRule() {
-        // --- NEW FEATURE ---
         if (x == startX && y == startY && !path.isEmpty()) {
             throw new IllegalStateException("Maze runner returned to starting position — possible infinite loop.");
         }
 
         if (canMoveForward() && !canMoveRight() && !canMoveLeft()) {
-            moveForward();
+            new MoveForwardCommand(this).execute();
         } else if (canMoveRight()) {
-            turnRight();
-            moveForward();
+            new TurnRightCommand(this).execute();
+            new MoveForwardCommand(this).execute();
         } else if (canMoveForward()) {
-            moveForward();
+            new MoveForwardCommand(this).execute();
         } else if (canMoveLeft()) {
-            turnLeft();
-            moveForward();
+            new TurnLeftCommand(this).execute();
+            new MoveForwardCommand(this).execute();
         } else {
-            turnBack();
+            new TurnRightCommand(this).execute();
+            new TurnRightCommand(this).execute();  
         }
     }
 
@@ -76,68 +77,78 @@ public class Explorer {
     }
 
     public boolean canMoveRight() {
-        switch (direction) {
-            case "UP":    return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
-            case "DOWN":  return y - 1 >= 0 && grid[x][y - 1] == ' ';
-            case "LEFT":  return x - 1 >= 0 && grid[x - 1][y] == ' ';
-            case "RIGHT": return x + 1 < grid.length && grid[x + 1][y] == ' ';
-            default:      return false;
+        if (direction.equals("UP")) {
+            return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
+        } else if (direction.equals("DOWN")) {
+            return y - 1 >= 0 && grid[x][y - 1] == ' ';
+        } else if (direction.equals("LEFT")) {
+            return x - 1 >= 0 && grid[x - 1][y] == ' ';
+        } else { // RIGHT
+            return x + 1 < grid.length && grid[x + 1][y] == ' ';
         }
     }
 
     public boolean canMoveForward() {
-        switch (direction) {
-            case "UP":    return x - 1 >= 0 && grid[x - 1][y] == ' ';
-            case "DOWN":  return x + 1 < grid.length && grid[x + 1][y] == ' ';
-            case "LEFT":  return y - 1 >= 0 && grid[x][y - 1] == ' ';
-            case "RIGHT": return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
-            default:      return false;
+        if (direction.equals("UP")) {
+            return x - 1 >= 0 && grid[x - 1][y] == ' ';
+        } else if (direction.equals("DOWN")) {
+            return x + 1 < grid.length && grid[x + 1][y] == ' ';
+        } else if (direction.equals("LEFT")) {
+            return y - 1 >= 0 && grid[x][y - 1] == ' ';
+        } else { // RIGHT
+            return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
         }
     }
 
     public boolean canMoveLeft() {
-        switch (direction) {
-            case "UP":    return y - 1 >= 0 && grid[x][y - 1] == ' ';
-            case "DOWN":  return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
-            case "LEFT":  return x + 1 < grid.length && grid[x + 1][y] == ' ';
-            case "RIGHT": return x - 1 >= 0 && grid[x - 1][y] == ' ';
-            default:      return false;
+        if (direction.equals("UP")) {
+            return y - 1 >= 0 && grid[x][y - 1] == ' ';
+        } else if (direction.equals("DOWN")) {
+            return y + 1 < grid[0].length && grid[x][y + 1] == ' ';
+        } else if (direction.equals("LEFT")) {
+            return x + 1 < grid.length && grid[x + 1][y] == ' ';
+        } else { // RIGHT
+            return x - 1 >= 0 && grid[x - 1][y] == ' ';
         }
     }
 
-    public void moveForward() {
-        switch (direction) {
-            case "UP":    x--; break;
-            case "DOWN":  x++; break;
-            case "LEFT":  y--; break;
-            case "RIGHT": y++; break;
+    public void doMoveForward() {
+        if (direction.equals("UP")) {
+            x--;
+        } else if (direction.equals("DOWN")) {
+            x++;
+        } else if (direction.equals("LEFT")) {
+            y--;
+        } else { // RIGHT
+            y++;
         }
         path.add("F");
     }
 
-    private void turnRight() {
-        switch (direction) {
-            case "UP":    direction = "RIGHT"; break;
-            case "RIGHT": direction = "DOWN"; break;
-            case "DOWN":  direction = "LEFT"; break;
-            case "LEFT":  direction = "UP"; break;
+    public void doTurnRight() {
+        if (direction.equals("UP")) {
+            direction = "RIGHT";
+        } else if (direction.equals("RIGHT")) {
+            direction = "DOWN";
+        } else if (direction.equals("DOWN")) {
+            direction = "LEFT";
+        } else { // LEFT
+            direction = "UP";
         }
         path.add("R");
     }
 
-    private void turnLeft() {
-        switch (direction) {
-            case "UP":    direction = "LEFT"; break;
-            case "LEFT":  direction = "DOWN"; break;
-            case "DOWN":  direction = "RIGHT"; break;
-            case "RIGHT": direction = "UP"; break;
+    public void doTurnLeft() {
+        if (direction.equals("UP")) {
+            direction = "LEFT";
+        } else if (direction.equals("LEFT")) {
+            direction = "DOWN";
+        } else if (direction.equals("DOWN")) {
+            direction = "RIGHT";
+        } else { // RIGHT
+            direction = "UP";
         }
         path.add("L");
-    }
-
-    private void turnBack() {
-        turnRight();
-        turnRight();
     }
 
     public String getCanonicalPath() {
@@ -150,23 +161,20 @@ public class Explorer {
                 count++;
             } else {
                 if (count > 1) {
-                    compressedPath.append(count).append(prevMove);
-                } else {
-                    compressedPath.append(prevMove);
+                    compressedPath.append(count);
                 }
+                compressedPath.append(prevMove);
                 prevMove = path.get(i);
                 count = 1;
             }
         }
         if (count > 1) {
-            compressedPath.append(count).append(prevMove);
-        } else {
-            compressedPath.append(prevMove);
+            compressedPath.append(count);
         }
+        compressedPath.append(prevMove);
         return compressedPath.toString();
     }
 
     public int getX() { return x; }
-
     public int getY() { return y; }
 }
